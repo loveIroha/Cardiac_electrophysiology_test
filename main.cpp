@@ -100,7 +100,7 @@ int main()
         double dt_ode_ms = 0.001;                     // 50 microseconds = 0.05 ms
         
         // Total simulation time
-        double T_total_seconds = 1.0;                // 1000 ms total
+        double T_total_seconds = 0.6;                // 1000 ms total
         
         // Calculate number of PDE steps (not ODE steps!)
         size_t num_pde_steps = static_cast<size_t>(T_total_seconds / dt_pde_seconds);
@@ -227,7 +227,7 @@ int main()
         std::cout << "║  开始时间步进 (多尺度方法)                   ║" << std::endl;
         std::cout << "╚═══════════════════════════════════════════════╝\n" << std::endl;
         
-        size_t output_interval = 200;  // Output every 20 PDE steps
+        size_t output_interval = 200;  // Output every 200 PDE steps
         double t_seconds = 0.0;
         
         for (size_t pde_step = 0; pde_step < num_pde_steps; ++pde_step)
