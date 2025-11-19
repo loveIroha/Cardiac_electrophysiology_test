@@ -1,0 +1,3 @@
+/mnt/large2/gjh/Small_tissue_ele/build/CMakeFiles/linear_electrostatic_solver.dir
+/mnt/large2/gjh/Small_tissue_ele/build/CMakeFiles/edit_cache.dir
+/mnt/large2/gjh/Small_tissue_ele/build/CMakeFiles/rebuild_cache.dir

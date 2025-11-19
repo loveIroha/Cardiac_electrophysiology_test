@@ -1,0 +1,30 @@
+Cm = 0.01 # muF/cm^2
+S_v = 0.1 # 1/cm
+G_f = G_s = G_n = 0.012 # mS/cm
+
+V = VectorElement("Lagrange", tetrahedron, 1)
+S = FiniteElement("Lagrange", tetrahedron, 1)
+R = FiniteElement("Real",     tetrahedron, 0)
+v = TestFunction(S)
+u = TrialFunction(S)
+
+f0 = Coefficient(V)                 # fiber direction
+s0 = Coefficient(V)                 # sheet direction
+n0 = cross(f0, s0)
+
+Vm  = Coefficient(S)                 # Electric potential, the variable to be solved
+Vm_old  = Coefficient(S)           # previous Electric potential
+
+I_ion   = Coefficient(S)     # ODE 步计算出的 I_ion^n（节点值）
+I_stim  = Coefficient(S) 
+
+dt  = Coefficient(R)                # 时间步长
+
+D = G_f * outer(f0, f0) + G_s * outer(s0, s0) + G_n * outer(n0, n0)
+
+a = (S_v * Cm / dt) * inner(u, v) * dx + inner(D * grad(u), grad(v)) * dx
+
+L = (S_v * Cm/dt) * inner(Vm_old, v) * dx \
+    - S_v * inner(I_ion, v) * dx \
+    + S_v * inner(I_stim, v) * dx
+F = a - L
