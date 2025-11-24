@@ -1,6 +1,6 @@
-Cm = 0.01 # muF/cm^2
+Cm = 0.1 # muF/cm^2
 S_v = 0.1 # 1/cm
-G_f = G_s = G_n = 0.012 # mS/cm
+G_f = G_s = G_n = 0.12 # mS/cm
 
 V = VectorElement("Lagrange", tetrahedron, 1)
 S = FiniteElement("Lagrange", tetrahedron, 1)

@@ -93,14 +93,14 @@ int main()
         // ════════════════════════════════════════════════════════
         
         // PDE time step (tissue scale) - LARGER (coarse time scale)
-        double dt_pde_ms = 0.005;                     // 50 microseconds = 0.05 ms
+        double dt_pde_ms = 0.05;                     // 50 microseconds = 0.05 ms
         double dt_pde_seconds = dt_pde_ms / 1000.0;  // Convert to seconds
         
         // ODE time step (cell scale) - SMALLER
-        double dt_ode_ms = 0.001;                     // 50 microseconds = 0.05 ms
+        double dt_ode_ms = 0.005;                     // 50 microseconds = 0.05 ms
         
         // Total simulation time
-        double T_total_seconds = 0.6;                // 1000 ms total
+        double T_total_seconds = 0.6;                // 600 ms total
         
         // Calculate number of PDE steps (not ODE steps!)
         size_t num_pde_steps = static_cast<size_t>(T_total_seconds / dt_pde_seconds);

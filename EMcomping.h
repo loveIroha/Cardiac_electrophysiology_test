@@ -4709,7 +4709,7 @@ return enabled;
     sp[41] = sp[39] + -1 * sp[40];
     sp[42] = sp[41] / sp[13];
     sp[43] = std::abs(sp[13]);
-    sp[44] = 0.001 / w[2][0] * sp[43];
+    sp[44] = 0.01 / w[2][0] * sp[43];
     alignas(32) double TP0[2] = {};
     alignas(32) double TP1[2] = {};
     alignas(32) double TP2[2] = {};
@@ -4744,23 +4744,23 @@ return enabled;
         alignas(32) double sv14[138];
         sv14[0] = w0_c0 * w0_c0;
         sv14[1] = w1_c0 * w1_c0;
-        sv14[2] = 0.012 * sv14[0] + 0.012 * sv14[1];
+        sv14[2] = 0.12 * sv14[0] + 0.12 * sv14[1];
         sv14[3] = w0_c1 * w1_c2;
         sv14[4] = w1_c1 * w0_c2;
         sv14[5] = sv14[3] + -1 * sv14[4];
         sv14[6] = sv14[5] * sv14[5];
-        sv14[7] = sv14[2] + 0.012 * sv14[6];
+        sv14[7] = sv14[2] + 0.12 * sv14[6];
         sv14[8] = sv14[7] * sp[14];
         sv14[9] = sv14[7] * sp[17];
         sv14[10] = sv14[7] * sp[18];
         sv14[11] = w0_c0 * w0_c1;
         sv14[12] = w1_c0 * w1_c1;
-        sv14[13] = 0.012 * sv14[11] + 0.012 * sv14[12];
+        sv14[13] = 0.12 * sv14[11] + 0.12 * sv14[12];
         sv14[14] = w1_c0 * w0_c2;
         sv14[15] = w0_c0 * w1_c2;
         sv14[16] = sv14[14] + -1 * sv14[15];
         sv14[17] = sv14[5] * sv14[16];
-        sv14[18] = sv14[13] + 0.012 * sv14[17];
+        sv14[18] = sv14[13] + 0.12 * sv14[17];
         sv14[19] = sv14[18] * sp[22];
         sv14[20] = sv14[18] * sp[26];
         sv14[21] = sv14[18] * sp[30];
@@ -4769,12 +4769,12 @@ return enabled;
         sv14[24] = sv14[10] + sv14[21];
         sv14[25] = w0_c0 * w0_c2;
         sv14[26] = w1_c0 * w1_c2;
-        sv14[27] = 0.012 * sv14[25] + 0.012 * sv14[26];
+        sv14[27] = 0.12 * sv14[25] + 0.12 * sv14[26];
         sv14[28] = w0_c0 * w1_c1;
         sv14[29] = w1_c0 * w0_c1;
         sv14[30] = sv14[28] + -1 * sv14[29];
         sv14[31] = sv14[30] * sv14[5];
-        sv14[32] = sv14[27] + 0.012 * sv14[31];
+        sv14[32] = sv14[27] + 0.12 * sv14[31];
         sv14[33] = sv14[32] * sp[34];
         sv14[34] = sv14[32] * sp[38];
         sv14[35] = sv14[32] * sp[42];
@@ -4795,9 +4795,9 @@ return enabled;
         sv14[50] = sv14[18] * sp[18];
         sv14[51] = w0_c1 * w0_c1;
         sv14[52] = w1_c1 * w1_c1;
-        sv14[53] = 0.012 * sv14[51] + 0.012 * sv14[52];
+        sv14[53] = 0.12 * sv14[51] + 0.12 * sv14[52];
         sv14[54] = sv14[16] * sv14[16];
-        sv14[55] = sv14[53] + 0.012 * sv14[54];
+        sv14[55] = sv14[53] + 0.12 * sv14[54];
         sv14[56] = sv14[55] * sp[22];
         sv14[57] = sv14[55] * sp[26];
         sv14[58] = sv14[55] * sp[30];
@@ -4806,9 +4806,9 @@ return enabled;
         sv14[61] = sv14[50] + sv14[58];
         sv14[62] = w0_c1 * w0_c2;
         sv14[63] = w1_c1 * w1_c2;
-        sv14[64] = 0.012 * sv14[62] + 0.012 * sv14[63];
+        sv14[64] = 0.12 * sv14[62] + 0.12 * sv14[63];
         sv14[65] = sv14[30] * sv14[16];
-        sv14[66] = sv14[64] + 0.012 * sv14[65];
+        sv14[66] = sv14[64] + 0.12 * sv14[65];
         sv14[67] = sv14[66] * sp[34];
         sv14[68] = sv14[66] * sp[38];
         sv14[69] = sv14[66] * sp[42];
@@ -4844,9 +4844,9 @@ return enabled;
         sv14[99] = sv14[93] + sv14[96];
         sv14[100] = w0_c2 * w0_c2;
         sv14[101] = w1_c2 * w1_c2;
-        sv14[102] = 0.012 * sv14[100] + 0.012 * sv14[101];
+        sv14[102] = 0.12 * sv14[100] + 0.12 * sv14[101];
         sv14[103] = sv14[30] * sv14[30];
-        sv14[104] = sv14[102] + 0.012 * sv14[103];
+        sv14[104] = sv14[102] + 0.12 * sv14[103];
         sv14[105] = sv14[104] * sp[34];
         sv14[106] = sv14[104] * sp[38];
         sv14[107] = sv14[104] * sp[42];
@@ -5055,7 +5055,7 @@ return enabled;
             w0 += w[0][ic] * FE8_C0_Q4[0][iq][ic];
         alignas(32) double sv4[4];
         sv4[0] = -1 * (0.1 * w1) + 0.1 * w2;
-        sv4[1] = 0.001 / w[3][0] * w0;
+        sv4[1] = 0.01 / w[3][0] * w0;
         sv4[2] = sv4[0] + sv4[1];
         sv4[3] = sv4[2] * sp[14];
         const double fw0 = sv4[3] * weights4[iq];
@@ -5086,7 +5086,7 @@ public:
 
   const char * signature() const final override
   {
-    return "23aab177ec9710e78098a75bcece0502e8b8ce86fcc56c6688935286a006547762701b3928e037b1cd2b3533da2decd7b314bf00111769a9f7f4e12b6499faaa";
+    return "b5c91968cb85d33feb709fe20b50c640dfd27fa5a7acdf9f2f034e948a1ba40ed2c0eca7cd91fde328b874e68cf256a77ad7d3e7b618b509d96ea8571ccaae9c";
   }
 
   std::size_t rank() const final override
@@ -5341,7 +5341,7 @@ public:
 
   const char * signature() const final override
   {
-    return "68537fcea9408a212f74bc0132542c40360af7e019afc0903ff51902f42d65204295c34aeee51fbe5a316a17afd3cbb28a1c904f8bc9edefea86177978a41525";
+    return "170155cf1d335c587dcefe091fdbfeca43a29cc7d4a288238bea6e34d908c05865d1892294aedf1981ce624a43968a32e3cf993e50256f92afffb3b5cdf95f24";
   }
 
   std::size_t rank() const final override
