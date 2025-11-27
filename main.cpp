@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include <dolfin.h>
 #include "EMcomping.h"
 #include "GPBTissueManager.h"
@@ -69,6 +70,9 @@ private:
 int main()
 {
     try {
+        // Start timing
+        auto start_time = std::chrono::high_resolution_clock::now();
+        
         std::cout << "\n╔═══════════════════════════════════════════════╗" << std::endl;
         std::cout << "║  单域方程 + GPB 细胞模型                      ║" << std::endl;
         std::cout << "║  算子分裂法 + 子循环 (Subcycling)            ║" << std::endl;
@@ -100,7 +104,7 @@ int main()
         double dt_ode_ms = 0.005;                     // 50 microseconds = 0.05 ms
         
         // Total simulation time
-        double T_total_seconds = 1.0;                // 1000 ms total
+        double T_total_seconds = 0.8;                // 800 ms total
         
         // Calculate number of PDE steps (not ODE steps!)
         size_t num_pde_steps = static_cast<size_t>(T_total_seconds / dt_pde_seconds);
@@ -132,9 +136,10 @@ int main()
         auto Vm_old = std::make_shared<dolfin::Function>(V_scalar);
         auto I_ion = std::make_shared<dolfin::Function>(V_scalar);
         auto I_stim = std::make_shared<dolfin::Function>(V_scalar);
+        auto Ca_i = std::make_shared<dolfin::Function>(V_scalar);  // Ca_i spatial distribution
         
         // Initial condition: resting potential
-        dolfin::Constant V_rest(-0.085);  // -85 mV
+        dolfin::Constant V_rest(-0.0815455936324844);  // -81.5455936324844 mV
         Vm->interpolate(V_rest);
         Vm_old->interpolate(V_rest);
         
@@ -206,19 +211,24 @@ int main()
         );
         
         auto pde_solver = std::make_shared<dolfin::LinearVariationalSolver>(pde_problem);
-        pde_solver->parameters["linear_solver"] = "lu";
-        pde_solver->parameters["preconditioner"] = "default";
-        
-        std::cout << "  求解器: LU 分解 (直接法)" << std::endl;
+        pde_solver->parameters["linear_solver"] = "gmres";
+        pde_solver->parameters["preconditioner"] = "ilu";
+        // pde_solver->parameters("krylov_solver")["absolute_tolerance"] = 1e-8;
+        // pde_solver->parameters("krylov_solver")["relative_tolerance"] = 1e-8;
+        // pde_solver->parameters("krylov_solver")["maximum_iterations"] = 50;
+        // pde_solver->parameters("krylov_solver")["monitor_convergence"] = true;
+        // std::cout << "  求解器: LU 分解 (直接法)" << std::endl;
         std::cout << "  PDE 时间步长: " << dt_pde_seconds << " s" << std::endl;
         
         // ════════════════════════════════════════════════════════
         // 8. Output setup
         // ════════════════════════════════════════════════════════
         dolfin::File vm_file("results/Vm.pvd");
+        dolfin::File ca_i_file("results/Ca_i.pvd");  // Ca_i spatial distribution output
         std::ofstream csv_file("results/statistics.csv");
         csv_file << "time_ms,Vm_min_mV,Vm_max_mV,Vm_mean_mV,"
-                 << "I_ion_min,I_ion_max,I_ion_mean\n";
+                        << "I_ion_min,I_ion_max,I_ion_mean,"
+                        << "Ca_i_min_uM,Ca_i_max_uM,Ca_i_mean_uM\n";
         
         // ════════════════════════════════════════════════════════
         // 9. TIME STEPPING LOOP (PDE steps, not ODE steps!)
@@ -285,6 +295,11 @@ int main()
             if (pde_step % output_interval == 0) {
                 auto stats = gpb_tissue->get_statistics(Vm, I_ion);
                 
+                // Update Ca_i spatial distribution
+                std::vector<double> Ca_i_values = gpb_tissue->get_Ca_i_vector();
+                Ca_i->vector()->set_local(Ca_i_values);
+                Ca_i->vector()->apply("insert");
+                
                 std::cout << "PDE 步骤 " << pde_step 
                           << " (t = " << t_milliseconds << " ms):" << std::endl;
                 std::cout << "  Vm: [" << stats.Vm_min_mV << ", " 
@@ -293,18 +308,25 @@ int main()
                 std::cout << "  I_ion: [" << stats.I_ion_min << ", " 
                           << stats.I_ion_max << "] μA/cm² (平均: " 
                           << stats.I_ion_mean << ")" << std::endl;
+                std::cout << "  Ca_i: [" << stats.Ca_i_min_mM << ", "
+                          << stats.Ca_i_max_mM << "] μM (平均: "
+                          << stats.Ca_i_mean_mM << ")\n" << std::endl;
                 std::cout << "  (子循环: " << gpb_tissue->get_n_substeps() 
                           << " ODE 步 per PDE 步)" << std::endl;
                 
                 vm_file << *Vm;
+                ca_i_file << *Ca_i;  // Output Ca_i spatial distribution
                 csv_file << t_milliseconds << ","
                          << stats.Vm_min_mV << ","
                          << stats.Vm_max_mV << ","
                          << stats.Vm_mean_mV << ","
                          << stats.I_ion_min << ","
                          << stats.I_ion_max << ","
-                         << stats.I_ion_mean << "\n";
-            }
+                         << stats.I_ion_mean << ","
+                         << stats.Ca_i_min_mM << ","  
+                         << stats.Ca_i_max_mM << ","      
+                         << stats.Ca_i_mean_mM << "\n";
+                        }
             
             // Advance time by PDE step
             t_seconds += dt_pde_seconds;
@@ -312,19 +334,23 @@ int main()
         
         csv_file.close();
         
+        // Stop timing
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        double elapsed_seconds = duration.count() / 1000.0;
+        double elapsed_minutes = elapsed_seconds / 60.0;
+        
         std::cout << "\n╔═══════════════════════════════════════════════╗" << std::endl;
         std::cout << "║  模拟完成! (多尺度方法)                      ║" << std::endl;
         std::cout << "╚═══════════════════════════════════════════════╝\n" << std::endl;
         
-        std::cout << "性能统计:" << std::endl;
-        std::cout << "  PDE 步数: " << num_pde_steps << std::endl;
-        std::cout << "  每步子循环数: " << gpb_tissue->get_n_substeps() << std::endl;
-        std::cout << "  等效 ODE 步数: " 
-                  << num_pde_steps * gpb_tissue->get_n_substeps() << std::endl;
-        std::cout << "  加速比: " << gpb_tissue->get_n_substeps() << "x" << std::endl;
+        std::cout << "\n运行时间:" << std::endl;
+        std::cout << "  总时间: " << elapsed_seconds << " 秒 (" 
+                  << elapsed_minutes << " 分钟)" << std::endl;
         
         std::cout << "\n输出文件:" << std::endl;
-        std::cout << "  results/Vm.pvd - ParaView 可视化" << std::endl;
+        std::cout << "  results/Vm.pvd - Vm 空间分布 (ParaView 可视化)" << std::endl;
+        std::cout << "  results/Ca_i.pvd - Ca_i 空间分布 (μM, ParaView 可视化)" << std::endl;
         std::cout << "  results/statistics.csv - 统计数据" << std::endl;
         
         return 0;

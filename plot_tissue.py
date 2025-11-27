@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 df = pd.read_csv('/mnt/large2/gjh/Small_tissue_ele/Vm_tissue.csv')
 
 # 提取x轴(时间)和y轴(sum(u)值)数据
-x = df['Time']
+x = df['Time'] *10
 y = df['sum(u)'] * 1000  # 乘以1000转换单位为mV
 
 # 创建图形并设置大小

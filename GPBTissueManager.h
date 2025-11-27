@@ -191,6 +191,9 @@ public:
         double I_ion_min;
         double I_ion_max;
         double I_ion_mean;
+        double Ca_i_min_mM;
+        double Ca_i_max_mM;
+        double Ca_i_mean_mM;
         size_t num_nodes;
     };
     
@@ -208,8 +211,38 @@ public:
         stats.I_ion_min = I_ion_function->vector()->min();
         stats.I_ion_max = I_ion_function->vector()->max();
         stats.I_ion_mean = I_ion_function->vector()->sum() / num_nodes;
+
+        double Ca_i_sum = 0.0;
+        double Ca_i_max = -1e9;
+        double Ca_i_min = 1e9;
         
+        for (size_t node = 0; node < num_nodes; ++node) {
+        // y[37]是Ca_i，在57维的cell_states中索引为37-1=36（因为跳过了Vm）
+        // 乘以1000转换量纲：从 mM 转为 μM
+        double Ca_i = cell_states[node][36] * 1000.0;  // 对应原始模型的y[37]
+        
+        Ca_i_min = std::min(Ca_i_min, Ca_i);
+        Ca_i_max = std::max(Ca_i_max, Ca_i);
+        Ca_i_sum += Ca_i;
+        }
+    
+        stats.Ca_i_min_mM = Ca_i_min;
+        stats.Ca_i_max_mM = Ca_i_max;
+        stats.Ca_i_mean_mM = Ca_i_sum / num_nodes;
         return stats;
+    }
+
+    std::vector<double> get_Ca_i_vector() const
+    {
+        std::vector<double> Ca_i_values(num_nodes);
+        
+        for (size_t node = 0; node < num_nodes; ++node) {
+            // y[37]是Ca_i，在57维的cell_states中索引为36
+            // 乘以1000转换量纲：从 mM 转为 μM
+            Ca_i_values[node] = cell_states[node][36] * 1000.0;
+        }
+        
+        return Ca_i_values;
     }
     
     bool check_stability(
@@ -257,7 +290,7 @@ public:
         std::cout << "\nNode " << node_index << " cell state summary:" << std::endl;
         std::cout << "  Na_i: " << cell_states[node_index][32] << " mM" << std::endl;
         std::cout << "  K_i: " << cell_states[node_index][33] << " mM" << std::endl;
-        std::cout << "  Ca_i: " << cell_states[node_index][36] << " mM" << std::endl;
+        std::cout << "  Ca_i: " << cell_states[node_index][36] * 1000.0 << " μM" << std::endl;
     }
 
 private:
