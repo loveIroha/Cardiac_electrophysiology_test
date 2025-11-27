@@ -217,9 +217,9 @@ public:
         double Ca_i_min = 1e9;
         
         for (size_t node = 0; node < num_nodes; ++node) {
-        // y[37]是Ca_i，在57维的cell_states中索引为37-1=36（因为跳过了Vm）
+            
         // 乘以1000转换量纲：从 mM 转为 μM
-        double Ca_i = cell_states[node][36] * 1000.0;  // 对应原始模型的y[37]
+        double Ca_i = cell_states[node][37] * 1000.0;
         
         Ca_i_min = std::min(Ca_i_min, Ca_i);
         Ca_i_max = std::max(Ca_i_max, Ca_i);
@@ -237,9 +237,7 @@ public:
         std::vector<double> Ca_i_values(num_nodes);
         
         for (size_t node = 0; node < num_nodes; ++node) {
-            // y[37]是Ca_i，在57维的cell_states中索引为36
-            // 乘以1000转换量纲：从 mM 转为 μM
-            Ca_i_values[node] = cell_states[node][36] * 1000.0;
+            Ca_i_values[node] = cell_states[node][37] * 1000.0;
         }
         
         return Ca_i_values;
